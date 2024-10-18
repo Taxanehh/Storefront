@@ -52,7 +52,7 @@ const Home = () => {
         )}
         <section className="flex flex-col sm:flex-row justify-between items-center p-16 bg-gradient-to-r from-black via-navy-900 mt-16 mb-8">
           <div className="flex-1">
-            <img src="/deal-of-the-week.jpg" alt="Deal of the Week" className="w-full h-auto rounded-lg shadow-lg" />
+            <img src="https://picsum.photos/400/300?random=14" alt="Deal of the Week" className="w-full h-auto rounded-lg shadow-lg" />
           </div>
           <div className="flex-1 p-8">
             <h2 className="text-3xl font-bold mb-6">Deal of the Week</h2>
@@ -88,7 +88,7 @@ const Home = () => {
 
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-8 py-16 bg-gradient-to-r from-black to-navy-900 pr-10 pl-10">
           <div className="relative">
-            <img src="/product-1.jpg" alt="Deals" className="w-full h-96 rounded-lg mr-20" />
+            <img src="https://picsum.photos/400/300?random=16" alt="Deals" className="w-full h-96 rounded-lg mr-20" />
             <Link legacyBehavior href="/deals">
               <a className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-yellow-400 text-lg font-semibold hover:bg-opacity-75">
                 Deals
@@ -96,7 +96,7 @@ const Home = () => {
             </Link>
           </div>
           <div className="relative">
-            <img src="/product-1.jpg" alt="Trending Now" className="w-full h-96 rounded-lg mr-20" />
+            <img src="https://picsum.photos/400/300?random=15" alt="Trending Now" className="w-full h-96 rounded-lg mr-20" />
             <Link legacyBehavior href="/trending">
               <a className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-yellow-400 text-lg font-semibold hover:bg-opacity-75">
                 Trending Now

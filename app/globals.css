@@ -2,26 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-space-grotesk: 'Space Grotesk', sans-serif;
+}
+
+body {
+  font-family: var(--font-space-grotesk);
+  line-height: 1.6;
+  font-weight: 400;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: linear-gradient(to right, black, #001f3f, black);
+    --foreground: #FFD700;
   }
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Webkit-based browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 12px; /* Adjust width as needed */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Transparent background for the track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* Slightly visible thumb with transparency */
+  border-radius: 0px; /* Rounded corners for the scrollbar */
+  border: 0px solid transparent; /* Optional border to give the thumb a bit of a margin */
+}
+
+/* Firefox (works with scrollbar-width and scrollbar-color) */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent; /* Transparent track and thumb */
 }

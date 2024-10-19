@@ -121,3 +121,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+
+from mongoengine import connect
+
+connect('bathroom_bandits_db', host='mongodb://localhost:27017/')  # Adjust database name and host if necessary

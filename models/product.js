@@ -1,4 +1,3 @@
-// models/product.js or product.ts
 import { DataTypes } from 'sequelize';
 import sequelize from '../pages/api/utils/db';
 
@@ -20,8 +19,20 @@ const Product = sequelize.define('Product', {
     allowNull: false,
   },
   description: {
-    type: DataTypes.TEXT, // Add description as TEXT
-    allowNull: true, // It's okay if some products don't have a description
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  isDealOfTheWeek: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  isTrending: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  isFeatured: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   }
 }, {
   timestamps: true,

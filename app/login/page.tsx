@@ -8,9 +8,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 
 const Login = () => {
   const searchParams = useSearchParams();
-  const router = useRouter(); 
+  const router = useRouter();
   const [successMessage, setSuccessMessage] = useState('');
-  
+
   useEffect(() => {
     if (searchParams) {
       const message = searchParams.get('message');
@@ -50,8 +50,8 @@ const Login = () => {
         // Save the token and user info in localStorage
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect to home page
+
+        // Redirect to the home page or any other protected page
         router.push('/');
       } else {
         setErrorMessage(data.message); // Display the error message

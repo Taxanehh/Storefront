@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@storefront-ui/react": "^2.7.0",
+    "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "framer-motion": "^11.11.9",
     "jsonwebtoken": "^9.0.2",

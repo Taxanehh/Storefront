@@ -13,6 +13,8 @@ interface Product {
   price: number;
   category: string;
   imageUrl: string;
+  isDealOfTheWeek?: boolean; // Add isDeal for deals
+  isTrending?: boolean; // Add isTrending for trending products
 }
 
 const Shop = () => {
@@ -21,9 +23,11 @@ const Shop = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); // Initialize as an empty array of Product type
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
+  const [cartMessage, setCartMessage] = useState<string | null>(null); // Success message for cart
   const router = useRouter(); // For navigation
 
-  const categories = ['All', 'Towels', 'Accessories', 'Curtains', 'Mats', 'Mirrors'];
+  // Add 'Deals' and 'Trending Now' to categories
+  const categories = ['All', 'Towels', 'Accessories', 'Curtains', 'Mats', 'Mirrors', 'Deals', 'Trending Now'];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -46,11 +50,50 @@ const Shop = () => {
     fetchProducts();
   }, []);
 
-  // Filter products by search query and selected category
-  const filtered = filteredProducts.filter((product) =>
-    (selectedCategory === 'All' || product.category === selectedCategory) &&
-    product.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const handleAddToCart = async (productId: number, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent this click from triggering the card click
+
+    const token = localStorage.getItem('token'); // Get the token from localStorage
+
+    if (!token) {
+      // If the token is missing, redirect the user to login
+      console.error('No token found, redirecting to login...');
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Pass the token in Authorization header
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: productId,
+          quantity: 1, // Default to adding 1 item
+        }),
+      });
+
+      if (response.ok) {
+        setCartMessage('Product added to cart successfully!');
+        setTimeout(() => setCartMessage(null), 2000); // Clear message after 2 seconds
+      } else {
+        const data = await response.json();
+        setError(data.message || 'Error adding product to cart');
+      }
+    } catch (err) {
+      setError('Error adding product to cart');
+    }
+  };
+
+  // Filter products by search query, selected category, and new categories
+  const filtered = filteredProducts.filter((product) => {
+    if (selectedCategory === 'Deals') return product.isDealOfTheWeek;
+    if (selectedCategory === 'Trending Now') return product.isTrending;
+    return (selectedCategory === 'All' || product.category === selectedCategory) &&
+          product.name.toLowerCase().includes(searchText.toLowerCase());
+  });
 
   const handleProductClick = (productId: number) => {
     router.push(`/shop/${productId}`); // Navigate to the product detail page
@@ -103,6 +146,9 @@ const Shop = () => {
           ))}
         </div>
 
+        {/* Cart Success Message */}
+        {cartMessage && <p className="text-green-500 mb-4">{cartMessage}</p>}
+
         {/* Products Grid */}
         {loading ? (
           <p className="text-white">Loading products...</p>
@@ -118,15 +164,25 @@ const Shop = () => {
                   whileHover={{ scale: 1.05 }}
                   onClick={() => handleProductClick(product.id)} // Click to navigate
                 >
-                  <img
-                    src={product.imageUrl || 'https://via.placeholder.com/400x300'}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
-                  <h3 className="text-2xl font-semibold text-white mb-2">{product.name}</h3>
-                  <p className="text-lg text-yellow-400">
-                    ${Number(product.price).toFixed(2)}
-                  </p>
+                  {/* Wrapping everything else in the click event */}
+                  <div>
+                    <img
+                      src={product.imageUrl || 'https://via.placeholder.com/400x300'}
+                      alt={product.name}
+                      className="w-full h-48 object-cover rounded-lg mb-4"
+                    />
+                    <h3 className="text-2xl font-semibold text-white mb-2">{product.name}</h3>
+                    <p className="text-lg text-yellow-400">${Number(product.price).toFixed(2)}</p>
+                  </div>
+
+                  {/* Isolate the Add to Cart button */}
+                  <motion.button
+                    className="px-4 py-2 mt-4 bg-yellow-400 text-black font-semibold rounded-full hover:bg-yellow-500 transition duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    onClick={(event) => handleAddToCart(product.id, event)} // Stop propagation on Add to Cart
+                  >
+                    + Add to Cart
+                  </motion.button>
                 </motion.div>
               ))
             ) : (

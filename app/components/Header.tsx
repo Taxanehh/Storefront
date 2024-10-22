@@ -76,7 +76,6 @@ const Header = () => {
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
                 <Link href="/orders" className="block px-4 py-2 hover:bg-gray-200">Orders</Link>
-                <Link href="/settings" className="block px-4 py-2 hover:bg-gray-200">Settings</Link>
                 <Link href="/profile" className="block px-4 py-2 hover:bg-gray-200">Profile</Link>
                 <button
                   onClick={handleLogOut}
@@ -96,13 +95,6 @@ const Header = () => {
 
         {/* Search Form */}
         <form onSubmit={handleSearch} className="flex items-center">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="p-2 text-black rounded-lg"
-          />
           <button type="submit" className="ml-2 px-4 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-500">
             Search
           </button>

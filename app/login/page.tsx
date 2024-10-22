@@ -141,13 +141,6 @@ const Login = () => {
           </motion.button>
         </motion.form>
 
-        {/* Forgot Password Link */}
-        <div className="text-white mt-4">
-          <a href="/forgot-password" className="text-yellow-400 hover:text-yellow-500">
-            Forgot your password?
-          </a>
-        </div>
-
         <p className="text-white mt-8">
           Don't have an account?{' '}
           <a href="/register" className="text-yellow-400 hover:text-yellow-500">

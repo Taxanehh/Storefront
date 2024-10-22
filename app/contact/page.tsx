@@ -1,11 +1,39 @@
 'use client';
 
+import { useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import axios from 'axios';
 
 const Contact = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<string | null>(null); // To show success/error message
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('/api/contact', {
+        name,
+        email,
+        message,
+      });
+
+      if (response.status === 200) {
+        setStatus('Message sent successfully!');
+        setName(''); // Clear form
+        setEmail('');
+        setMessage('');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setStatus('Failed to send message. Please try again.');
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -28,6 +56,7 @@ const Contact = () => {
         </motion.p>
 
         <motion.form
+          onSubmit={handleSubmit} // Add onSubmit handler
           className="flex flex-col gap-6 bg-navy-900 p-8 rounded-lg shadow-md w-full max-w-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -37,6 +66,8 @@ const Contact = () => {
             Name:
             <input
               type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="mt-1 p-2 w-full rounded-lg text-black"
               placeholder="Your Name"
               required
@@ -46,6 +77,8 @@ const Contact = () => {
             Email:
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="mt-1 p-2 w-full rounded-lg text-black"
               placeholder="Your Email"
               required
@@ -54,6 +87,8 @@ const Contact = () => {
           <label className="text-white text-lg">
             Message:
             <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               className="mt-1 p-2 w-full h-32 rounded-lg text-black"
               placeholder="Your Message"
               required
@@ -66,6 +101,9 @@ const Contact = () => {
           >
             Send Message
           </motion.button>
+
+          {/* Status message */}
+          {status && <p className="mt-4 text-white text-center">{status}</p>}
         </motion.form>
 
         <div className="text-white text-lg mt-16 text-center">

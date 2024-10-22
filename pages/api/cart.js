@@ -1,5 +1,5 @@
 import Cart from '../../models/cart';
-import Product from '../../models/product'; // Assuming you have a Product model
+import Product from '../../models/product';
 import { verifyJWT } from '../api/utils/jwt';
 
 export default async function handler(req, res) {
@@ -29,14 +29,14 @@ export default async function handler(req, res) {
           include: [
             {
               model: Product,
-              attributes: ['name', 'price', 'imageUrl'],
+              attributes: ['id', 'name', 'price', 'imageUrl'], // Fetch necessary product details
             },
           ],
         });
 
         // Return an empty array if no items are found
         if (!cartItems || cartItems.length === 0) {
-          return res.status(200).json([]); // Return empty array instead of throwing error
+          return res.status(200).json([]); // Return empty array if no items found
         }
 
         return res.status(200).json(cartItems);
@@ -49,11 +49,11 @@ export default async function handler(req, res) {
       try {
         const { productId, quantity } = req.body;
 
-        // Find the cart item
+        // Find the cart item for the user
         const cartItem = await Cart.findOne({ where: { userId: user.userId, productId } });
 
         if (!cartItem) {
-          // If item is not in the cart, add it
+          // If the item is not in the cart, add it (only if quantity is greater than 0)
           if (quantity > 0) {
             await Cart.create({
               userId: user.userId,
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'Invalid quantity' });
           }
         } else {
-          // Update quantity, remove item if quantity is zero or less
+          // Update quantity or remove item if quantity is zero or less
           cartItem.quantity += quantity;
           if (cartItem.quantity <= 0) {
             await Cart.destroy({ where: { userId: user.userId, productId } });
@@ -83,6 +83,8 @@ export default async function handler(req, res) {
     case 'DELETE':
       try {
         const { productId } = req.body;
+
+        // Remove the cart item for the given productId and userId
         await Cart.destroy({ where: { userId: user.userId, productId } });
         return res.status(200).json({ message: 'Item removed from cart' });
       } catch (error) {

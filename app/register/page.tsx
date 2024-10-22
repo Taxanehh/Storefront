@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,14 +13,37 @@ const Register = () => {
     password: '',
   });
 
+  const [errorMessage, setErrorMessage] = useState('');
+  const router = useRouter();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Registration data:', formData);
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Redirect to login page with success message
+        router.push(`/login?message=Account created successfully! Please log in.`);
+      } else {
+        setErrorMessage(data.message); // Set error message if any
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setErrorMessage('Error creating account');
+    }
   };
 
   return (
@@ -86,6 +110,8 @@ const Register = () => {
           >
             Register
           </motion.button>
+
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         </motion.form>
 
         <p className="text-white mt-8">

@@ -3,28 +3,94 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 const Login = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter(); 
+  const [successMessage, setSuccessMessage] = useState('');
+  
+  useEffect(() => {
+    if (searchParams) {
+      const message = searchParams.get('message');
+      if (message) {
+        setSuccessMessage(message);
+        router.replace('/login'); // Remove the message query param from the URL
+      }
+    }
+  }, [searchParams, router]);
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Login data:', formData);
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Save the token and user info in localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Redirect to home page
+        router.push('/');
+      } else {
+        setErrorMessage(data.message); // Display the error message
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      setErrorMessage('Failed to log in. Please try again.');
+    }
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow flex flex-col items-center justify-center bg-gradient-to-r from-black to-navy-900 py-16">
+        
+        {/* Success Message */}
+        {successMessage && (
+          <motion.p
+            className="text-green-500 text-lg mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {successMessage}
+          </motion.p>
+        )}
+
+        {/* Error Message */}
+        {errorMessage && (
+          <motion.p
+            className="text-red-500 text-lg mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {errorMessage}
+          </motion.p>
+        )}
+
         <motion.h1
           className="text-5xl font-bold text-white mb-6 text-center"
           initial={{ opacity: 0, y: -50 }}

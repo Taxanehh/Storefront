@@ -1,44 +1,60 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation'; // Hook to access query parameters
+import { useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
 
-const productData = [
-  { id: 1, name: 'Luxury Towel Set', price: 49.99, category: 'Towels', image: 'https://picsum.photos/400/300?random=1' },
-  { id: 2, name: 'Modern Soap Dispenser', price: 19.99, category: 'Accessories', image: 'https://picsum.photos/400/300?random=2' },
-  { id: 3, name: 'Elegant Shower Curtain', price: 34.99, category: 'Curtains', image: 'https://picsum.photos/400/300?random=3' },
-  { id: 4, name: 'Classic Bath Mat', price: 29.99, category: 'Mats', image: 'https://picsum.photos/400/300?random=4' },
-  { id: 5, name: 'Luxury Bathroom Mirror', price: 99.99, category: 'Mirrors', image: 'https://picsum.photos/400/300?random=5' },
-  { id: 6, name: 'Designer Toothbrush Holder', price: 15.99, category: 'Accessories', image: 'https://picsum.photos/400/300?random=6' },
-  { id: 7, name: 'Soft Cotton Bathrobe', price: 79.99, category: 'Towels', image: 'https://picsum.photos/400/300?random=7' },
-  { id: 8, name: 'Eco-Friendly Showerhead', price: 59.99, category: 'Accessories', image: 'https://picsum.photos/400/300?random=8' },
-  { id: 9, name: 'Waterproof Bluetooth Speaker', price: 39.99, category: 'Accessories', image: 'https://picsum.photos/400/300?random=9' },
-  { id: 10, name: 'Anti-Slip Bath Mat', price: 24.99, category: 'Mats', image: 'https://picsum.photos/400/300?random=10' },
-  { id: 11, name: 'Gold-Framed Bathroom Mirror', price: 120.00, category: 'Mirrors', image: 'https://picsum.photos/400/300?random=11' },
-  { id: 12, name: 'Minimalist Toothbrush Holder', price: 12.99, category: 'Accessories', image: 'https://picsum.photos/400/300?random=12' },
-];
-
-const categories = ['All', 'Towels', 'Accessories', 'Curtains', 'Mats', 'Mirrors'];
+// Define the Product type
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  imageUrl: string;
+}
 
 const Shop = () => {
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.get('search') || ''; // Get search query from the URL
-
-  const [searchText, setSearchText] = useState(searchQuery); // Independent search bar in shop page
+  const [searchText, setSearchText] = useState(''); // Independent search bar in shop page
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [filteredProducts, setFilteredProducts] = useState(productData);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); // Initialize as an empty array of Product type
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
+  const router = useRouter(); // For navigation
+
+  const categories = ['All', 'Towels', 'Accessories', 'Curtains', 'Mats', 'Mirrors'];
 
   useEffect(() => {
-    // Filter products by search query and selected category
-    const filtered = productData.filter((product) =>
-      (selectedCategory === 'All' || product.category === selectedCategory) &&
-      product.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-    setFilteredProducts(filtered);
-  }, [searchText, selectedCategory]);
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        const data: Product[] = await response.json();
+
+        if (response.ok) {
+          setFilteredProducts(data);
+        } else {
+          setError('Error fetching products');
+        }
+      } catch (err) {
+        setError('Error fetching products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Filter products by search query and selected category
+  const filtered = filteredProducts.filter((product) =>
+    (selectedCategory === 'All' || product.category === selectedCategory) &&
+    product.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const handleProductClick = (productId: number) => {
+    router.push(`/shop/${productId}`); // Navigate to the product detail page
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -88,19 +104,36 @@ const Shop = () => {
         </div>
 
         {/* Products Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 sm:px-8 lg:px-16">
-          {filteredProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              className="bg-navy-900 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out"
-              whileHover={{ scale: 1.05 }}
-            >
-              <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded-lg mb-4" />
-              <h3 className="text-2xl font-semibold text-white mb-2">{product.name}</h3>
-              <p className="text-lg text-yellow-400">${product.price.toFixed(2)}</p>
-            </motion.div>
-          ))}
-        </section>
+        {loading ? (
+          <p className="text-white">Loading products...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : (
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 sm:px-8 lg:px-16">
+            {filtered.length > 0 ? (
+              filtered.map((product) => (
+                <motion.div
+                  key={product.id}
+                  className="bg-navy-900 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  onClick={() => handleProductClick(product.id)} // Click to navigate
+                >
+                  <img
+                    src={product.imageUrl || 'https://via.placeholder.com/400x300'}
+                    alt={product.name}
+                    className="w-full h-48 object-cover rounded-lg mb-4"
+                  />
+                  <h3 className="text-2xl font-semibold text-white mb-2">{product.name}</h3>
+                  <p className="text-lg text-yellow-400">
+                    ${Number(product.price).toFixed(2)}
+                  </p>
+                </motion.div>
+              ))
+            ) : (
+              <p className="text-white">No products found.</p>
+            )}
+          </section>
+        )}
       </main>
       <Footer />
     </div>
